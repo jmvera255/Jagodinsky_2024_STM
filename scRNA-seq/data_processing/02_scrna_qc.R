@@ -43,6 +43,7 @@ scrna_list <- purrr::map(scrna_list, function(x) {
 sce_list <- purrr::map(scrna_list, as.SingleCellExperiment)
 sce_list <- purrr::map(sce_list, function(x) {
   # set.seed() # use set.seed for consistent doublet prediction run-to-run
+  # see ../../supporting_data/scDbl_df.qs for original scDbl_class labels
   x <- scDblFinder(x)
   return(x)
 })

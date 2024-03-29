@@ -1,0 +1,2 @@
+sample_id	nCounts_threshold	nFeatures_threshold
+BTD3-C1	82500	1250

@@ -11,12 +11,13 @@ suppressPackageStartupMessages({
 })
 
 # load mouse TIL Atlas v1 to use as projection reference
-download.file(url = "https://doi.org/10.6084/m9.figshare.12478571", 
+download.file(url = "https://figshare.com/ndownloader/files/41398167", 
               destfile = "ref_TILAtlas_mouse_v1.rds")
 ref <- readRDS("ref_TILAtlas_mouse_v1.rds")
 
 # read in integrated lymphoid compartment data
 lymphoid_integrated <- readRDS("lymphoid_compartment.integrated.SeuratObj.rds")
+DefaultAssay(lymphoid_integrated) <- "RNA"
 
 # split into list object
 scrna_list <- SplitObject(lymphoid_integrated, split.by = "orig.ident")
@@ -44,13 +45,10 @@ names(sample_key) <- c("Sham", "BT", "BTICI", "ICI", "2ICI", "8ICI", "20ICI")
 projectTILs_df$I <- recode(projectTILs_df$Sample, !!!sample_key)
 projectTILs_df <- mutate(projectTILs_df, UMI = paste(UMI, I, sep = "_"))
 
-# now load integrated lymphoid data
-scrna_integrated <- qs::qread("lymphoid_integrated.scrna.qs")
-
 # make projectTIL dot plot Fig5E
-scrna_df <- data.frame(UMI = names(scrna_integrated$orig.ident), 
-                       Sample = scrna_integrated$orig.ident, 
-                       Cluster = scrna_integrated$seurat_clusters)
+scrna_df <- data.frame(UMI = names(lymphoid_integrated$orig.ident), 
+                       Sample = lymphoid_integrated$orig.ident, 
+                       Cluster = lymphoid_integrated$seurat_clusters)
 scrna_df$I <- recode(scrna_df$Sample, !!!sample_key)
 scrna_df <- mutate(scrna_df, UMI = paste(UMI, I, sep="_"))
 scrna_df <- left_join(projectTILs_df, dplyr::select(scrna_df, -I, -Sample), by = "UMI")

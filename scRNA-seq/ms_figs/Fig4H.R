@@ -38,8 +38,6 @@ gene_set_dict <- mmu_paths$all$KEGGPATHID2NAME$to
 names(gene_set_dict) <- mmu_paths$all$KEGGPATHID2NAME$from
 
 gene_counts <- as.matrix(myeloid_integrated@assays$RNA@counts)
-# for testing 
-gene_counts <- gene_counts[,1:100]
 
 cell_meta <- select(myeloid_integrated@meta.data, orig.ident, seurat_clusters)
 cell_meta$SampleID <- colnames(myeloid_integrated)

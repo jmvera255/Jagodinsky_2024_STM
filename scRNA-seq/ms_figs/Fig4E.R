@@ -12,6 +12,36 @@ suppressPackageStartupMessages({
   library(ggplot2)
 })
 
+######################
+##### FUNCTIONS ######
+######################
+
+compute_gene_pct <- function(deseq, qprob = 0, filter_fun = NULL) {
+  if (!is.null(filter_fun)) {
+    deseq <- deseq[, filter_fun(deseq)]
+  }
+  
+  gene_mat <- SummarizedExperiment::assay(deseq)
+  gene_quant <- matrixStats::rowQuantiles(gene_mat, probs = qprob)
+  
+  ncells <- ncol(gene_mat)
+  rowSums(gene_mat > gene_quant) / ncells
+}
+
+compute_gene_mean <- function(scrna, gene) {
+  
+  data <- GetAssayData(scrna, assay = "SCT", slot = "data")
+  
+  gene_quant <- matrixStats::rowQuantiles(gene_mat, probs = qprob)
+  
+  ncells <- ncol(gene_mat)
+  rowSums(gene_mat > gene_quant) / ncells
+}
+
+######################
+#####    MAIN   ######
+######################
+
 # load clustered myeloid compartment object
 myeloid_integrated <- readRDS("myeloid_compartment.integrated.SeuratObj.rds")
 
@@ -53,17 +83,26 @@ results <- tibble::as_tibble(results(dds, tidy = TRUE, name = "BT1.ICI1")) %>%
   dplyr::mutate(pct_Sham, pct_ICI, pct_BT, pct_BTICI)
 arrange(results, padj) %>% head()
 
+# Define a set of "hits" 
+hits <- filter(results, padj < 0.05 & pct_BTICI > 0.1)
+
+# reload clustered myeloid compartment object to get neutrophil cells from all conditions
+myeloid_integrated <- readRDS("myeloid_compartment.integrated.SeuratObj.rds")
+# select cells of interest
+myeloid_integrated <- subset(myeloid_integrated, subset = seurat_clusters == "8")
+myeloid_integrated$orig.ident <- factor(myeloid_integrated$orig.ident, levels = c("Sham", "ICI", "BT", "BTICI", 
+                                                        "2ICI", "8ICI", "20ICI"))
 
 # get SCTransformed counts data mat for heatmap visualization
-sct_mat <- GetAssayData(scrna, assay = "SCT", slot = "data")
+sct_mat <- GetAssayData(myeloid_integrated, assay = "SCT", slot = "data")
 sct_mat <- sct_mat[hits$row,]
-mean_mat <- as.matrix(cbind(rowMeans(sct_mat[,which(scrna$orig.ident == "Sham")]), 
-                            rowMeans(sct_mat[,which(scrna$orig.ident == "ICI")]), 
-                            rowMeans(sct_mat[,which(scrna$orig.ident == "BT")]), 
-                            rowMeans(sct_mat[,which(scrna$orig.ident == "BTICI")]), 
-                            rowMeans(sct_mat[,which(scrna$orig.ident == "2ICI")]), 
-                            rowMeans(sct_mat[,which(scrna$orig.ident == "8ICI")]), 
-                            rowMeans(sct_mat[,which(scrna$orig.ident == "20ICI")])))
+mean_mat <- as.matrix(cbind(rowMeans(sct_mat[,which(myeloid_integrated$orig.ident == "Sham")]), 
+                            rowMeans(sct_mat[,which(myeloid_integrated$orig.ident == "ICI")]), 
+                            rowMeans(sct_mat[,which(myeloid_integrated$orig.ident == "BT")]), 
+                            rowMeans(sct_mat[,which(myeloid_integrated$orig.ident == "BTICI")]), 
+                            rowMeans(sct_mat[,which(myeloid_integrated$orig.ident == "2ICI")]), 
+                            rowMeans(sct_mat[,which(myeloid_integrated$orig.ident == "8ICI")]), 
+                            rowMeans(sct_mat[,which(myeloid_integrated$orig.ident == "20ICI")])))
 rownames(mean_mat) <- hits$row
 colnames(mean_mat) <- c("Sham", "ICI", "BT", "BT+ICI", "2 Gy + ICI", 
                         "8 Gy + ICI", "20 Gy + ICI")

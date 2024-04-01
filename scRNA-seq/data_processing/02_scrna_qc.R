@@ -130,7 +130,7 @@ names(scrna_list) <- samples
 
 # then save scrna_list with all cell types to use as input for subsequent work
 fid <- "scrna_qc.scrna_list.processed.qs"
-qs::qsave(scrna_list, fid) #2022-06-13_integration_optimization_prep 
+qs::qsave(scrna_list, fid)
 
 # pull out predicted lymphoid cells
 lymphoid_scrna_list <- purrr::map(scrna_list, function(x) {
@@ -139,7 +139,7 @@ lymphoid_scrna_list <- purrr::map(scrna_list, function(x) {
 })
 names(lymphoid_scrna_list) <- samples
 fid <- "scrna_qc.lymphoid.scrna_list.processed.qs"
-qs::qsave(lymphoid_scrna_list, fid) #2022-09-02_lymphoid_compartment_clustering scrna_list
+qs::qsave(lymphoid_scrna_list, fid)
 
 # pull out predicted myeloid cells
 myeloid_scrna_list <- purrr::map(scrna_list, function(x) {
@@ -148,7 +148,7 @@ myeloid_scrna_list <- purrr::map(scrna_list, function(x) {
 })
 names(myeloid_scrna_list) <- samples
 fid <- "scrna_qc.myeloid.scrna_list.processed.qs"
-qs::qsave(myeloid_scrna_list, fid) #2022-09-06_myeloid_compartment_clustering scrna_list
+qs::qsave(myeloid_scrna_list, fid)
 
 
 # END

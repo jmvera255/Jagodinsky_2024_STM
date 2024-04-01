@@ -1,10 +1,3 @@
-Read 710 items
-The default behaviour of split.by has changed.
-Separate violin plots are now plotted side-by-side.
-To restore the old behaviour of a single split violin,
-set split.plot = TRUE.
-      
-This message will be shown once per session.
 R version 4.2.1 (2022-06-23)
 Platform: aarch64-apple-darwin20 (64-bit)
 Running under: macOS Ventura 13.6.3
